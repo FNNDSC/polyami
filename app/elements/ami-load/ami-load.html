@@ -34,8 +34,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <input type="file" id="filesinput" on-change="localFS_load" multiple>
 
       <ami-viewer id="viewer"
-                  data="[[series]]">
+                  series="[[series]]">
       </ami-viewer>
+
     </div>
   </template>
   <script>
@@ -55,21 +56,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         },
 
-        ready: function( ){
-
-          console.log('here!');
-
-          // load the data...
-          var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
-          this.data = t2.map(function(v) {
-            return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
-          });
-
-        },
-
         localFS_load: function( evt ){
           window.console.log( 'YAY!' );
           window.console.log( evt );
+
+          var self = this;
 
           // VJS classes we will be using in this lesson
           var LoadersVolume = AMI.default.Loaders.Volume;
@@ -86,56 +77,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             loader = null;
 
             // merge files into clean series/stack/frame structure
-            var series = seriesContainer[0].mergeSeries(seriesContainer);
-
-            // series/stacks/frames are ready to be used
-            window.console.log(series);
+            self.series = seriesContainer[0].mergeSeries(seriesContainer);
           };
 
-          function readMultipleFiles(evt) {
-            // hide the upload button
-            if (evt.target.files.length) {
-              document.getElementById('filesinput').style.display = 'none';
-            }
+          // hide the upload button
+          if (evt.target.files.length) {
+            this.$.filesinput.style.display = 'none';
+          }
 
-            function loadSequence(index, files) {
-              return Promise.resolve()
-              // load the file
-                .then(function() {
-                  return new Promise(function(resolve, reject) {
-                    let myReader = new FileReader();
-                    // should handle errors too...
-                    myReader.addEventListener('load', function(e) {
-                      resolve(e.target.result);
-                    });
-                    myReader.readAsArrayBuffer(files[index]);
-                  });
-                })
-                .then(function(buffer) {
-                  return loader.parse({url: files[index].name, buffer});
-                })
-                .then(function(series) {
-                  seriesContainer.push(series);
-                })
-                .catch(function(error) {
-                  window.console.log('oops... something went wrong...');
-                  window.console.log(error);
-                });
-            }
-
-            let loadSequenceContainer = [];
-            for (let i = 0; i < evt.target.files.length; i++) {
-              loadSequenceContainer.push(
-                loadSequence(i, evt.target.files)
-              );
-            }
-
-            // run the load sequence
-            // load sequence for all files
-            Promise
-              .all(loadSequenceContainer)
+          function loadSequence(index, files) {
+            return Promise.resolve()
+            // load the file
               .then(function() {
-                handleSeries(seriesContainer);
+                return new Promise(function(resolve, reject) {
+                  var myReader = new FileReader();
+                  // should handle errors too...
+                  myReader.addEventListener('load', function(e) {
+                    resolve(e.target.result);
+                  });
+                  myReader.readAsArrayBuffer(files[index]);
+                });
+              })
+              .then(function(buffer) {
+                window.console.log(files[index]);
+                return loader.parse({url: files[index].name, buffer: buffer});
+              })
+              .then(function(series) {
+                seriesContainer.push(series);
               })
               .catch(function(error) {
                 window.console.log('oops... something went wrong...');
@@ -143,6 +111,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               });
           }
 
+          var loadSequenceContainer = [];
+          for (var i = 0; i < evt.target.files.length; i++) {
+            loadSequenceContainer.push(
+              loadSequence(i, evt.target.files)
+            );
+          }
+
+          // run the load sequence
+          // load sequence for all files
+          Promise
+            .all(loadSequenceContainer)
+            .then(function() {
+              handleSeries(seriesContainer);
+            })
+            .catch(function(error) {
+              window.console.log('oops... something went wrong...');
+              window.console.log(error);
+            });
 
         }
 
