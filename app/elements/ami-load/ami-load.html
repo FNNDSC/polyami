@@ -1,0 +1,152 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<script type="text/javascript" src="https://cdn.rawgit.com/fnndsc/vjs/master/external/scripts/babel/polyfill.min.js"></script>
+
+
+<dom-module id="ami-load">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .container {
+        display: flex;
+      }
+
+
+      #viewer{
+        flex:1;
+        height: 300px;
+        min-width: 200px;
+      }
+
+    </style>
+    <div class="container">
+      <input type="file" id="filesinput" on-change="localFS_load" multiple>
+
+      <ami-viewer id="viewer"
+                  data="[[series]]">
+      </ami-viewer>
+    </div>
+  </template>
+  <script>
+
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'ami-load',
+
+        properties: {
+
+          series: {
+            type: Array,
+            value: []
+          }
+
+        },
+
+        ready: function( ){
+
+          console.log('here!');
+
+          // load the data...
+          var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
+          this.data = t2.map(function(v) {
+            return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
+          });
+
+        },
+
+        localFS_load: function( evt ){
+          window.console.log( 'YAY!' );
+          window.console.log( evt );
+
+          // VJS classes we will be using in this lesson
+          var LoadersVolume = AMI.default.Loaders.Volume;
+
+          // element to contain the progress bar
+          var container = document.getElementById('container');
+          var loader = new LoadersVolume(container);
+          var seriesContainer = [];
+
+          // once all files have been loaded (fetch + parse + add to array)
+          // merge them into series / stacks / frames
+          function handleSeries() {
+            loader.free();
+            loader = null;
+
+            // merge files into clean series/stack/frame structure
+            var series = seriesContainer[0].mergeSeries(seriesContainer);
+
+            // series/stacks/frames are ready to be used
+            window.console.log(series);
+          };
+
+          function readMultipleFiles(evt) {
+            // hide the upload button
+            if (evt.target.files.length) {
+              document.getElementById('filesinput').style.display = 'none';
+            }
+
+            function loadSequence(index, files) {
+              return Promise.resolve()
+              // load the file
+                .then(function() {
+                  return new Promise(function(resolve, reject) {
+                    let myReader = new FileReader();
+                    // should handle errors too...
+                    myReader.addEventListener('load', function(e) {
+                      resolve(e.target.result);
+                    });
+                    myReader.readAsArrayBuffer(files[index]);
+                  });
+                })
+                .then(function(buffer) {
+                  return loader.parse({url: files[index].name, buffer});
+                })
+                .then(function(series) {
+                  seriesContainer.push(series);
+                })
+                .catch(function(error) {
+                  window.console.log('oops... something went wrong...');
+                  window.console.log(error);
+                });
+            }
+
+            let loadSequenceContainer = [];
+            for (let i = 0; i < evt.target.files.length; i++) {
+              loadSequenceContainer.push(
+                loadSequence(i, evt.target.files)
+              );
+            }
+
+            // run the load sequence
+            // load sequence for all files
+            Promise
+              .all(loadSequenceContainer)
+              .then(function() {
+                handleSeries(seriesContainer);
+              })
+              .catch(function(error) {
+                window.console.log('oops... something went wrong...');
+                window.console.log(error);
+              });
+          }
+
+
+        }
+
+      });
+    })();
+  </script>
+</dom-module>
