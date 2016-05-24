@@ -17,19 +17,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         display: block;
       }
+
+      .container {
+        display: flex;
+      }
+
+
+      #viewer{
+        flex:1;
+        height: 300px;
+        min-width: 200px;
+      }
+
     </style>
-    <div>Hello from <span>{{foo}}</span></div>
+
+    <div class="container">
 
     <ami-viewer id="viewer"
-                data="[[data]]"
-                index="{{index}}"
-                orientation="{{orientation}}"
-                flip-rows="{{flipRows}}"
-                flip-columns="{{flipColumns}}"
-                index-max="{{indexMax}}"
-                border-color="[[fBorderColor]]">
-
+                data="[[data]]">
     </ami-viewer>
+
+    </div>
 
   </template>
   <script>
@@ -40,102 +48,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'ami-sliceselect',
 
       properties: {
-          foo: {
-            type: String,
-            value: 'ami-sliceselect',
-            notify: true
-          },
 
-          selected: {
-            type: Boolean,
-            value: false,
-            observer: '_selectedChanged'
-          },
-          initialized: {
-            type: Boolean,
-            value: false
-          },
-          animationFrameID: {
-            type: Number
-          },
           data: {
             type: Array,
             value: []
-          },
-
-          index: {
-            type: Number,
-            value: 0
-          },
-
-          indexMax: {
-            type: Number,
-            value: 0
-          },
-
-          orientation: {
-            type:Number,
-            value: 0
-          },
-
-          rotation: {
-            type:Number,
-            value: 0
-          },
-
-          flipRows: {
-            type: Boolean,
-            value: false
-          },
-
-          flipColumns: {
-            type: Boolean,
-            value: false
-          },
-
-          borderColor: {
-            type: String,
-            value: '#65a5f2',
-            observer: '_colorChanged'
-          },
-
-          fBoderColor:{
-            type: String
           }
+
         },
+
         ready: function( ){
-        },
-        _selectedChanged: function( ){
-          window.console.log('selected pacs pull');
-          // init threejs fun
-          if(this.selected && !this.initialized){
-            this.init();
-            this.initialized = true;
-          }
-          if(this.selected){
-            this.animate();
-          }
-          else{
-            window.cancelAnimationFrame(this.animationFrameID);
-          }
-        },
-        init: function( ){
 
           // load the data...
           var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
           this.data = t2.map(function(v) {
             return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
           });
-        },
-        // HACK FOR NOW, AMI SHOULD TAKE CARE OF IT
-        _colorChanged: function(){
-          this.fBorderColor = this.borderColor.replace('#','0x');
-        },
-        animate: function( ){
-          // this.animationFrameID = window.requestAnimationFrame( this.animate.bind(this) );
-          // this.mesh.rotation.x += 0.01;
-          // this.mesh.rotation.y += 0.02;
-          // this.renderer.render( this.scene, this.camera );
+
         }
 
       });
