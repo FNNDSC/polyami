@@ -79,6 +79,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Home</span>
           </a>
 
+          <a data-route="ami-load" href="{{baseUrl}}ami-load">
+            <iron-icon icon="info"></iron-icon>
+            <span>Vol load</span>
+          </a>
           <a data-route="ami-sliceselect" href="{{baseUrl}}ami-sliceselect">
             <iron-icon icon="info"></iron-icon>
             <span>Slice Select</span>
@@ -152,6 +156,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </paper-material>
             </section>
 
+
+
+            <section data-route="ami-load">
+              <paper-material elevation="1">
+                <h2 class="page-title">vol load</h2>
+                <ami-load></ami-load>
+              </paper-material>
+            </section>
 
             <section data-route="ami-sliceselect">
               <paper-material elevation="1">
