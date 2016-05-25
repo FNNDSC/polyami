@@ -15,13 +15,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="ami-load">
   <template>
     <style>
+
       :host {
         display: block;
       }
+
       .container {
         display: flex;
       }
-
 
       #viewer{
         flex:1;
@@ -30,14 +31,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
     </style>
-    <div class="container">
-      <input type="file" id="filesinput" on-change="localFS_load" multiple>
 
-      <ami-viewer id="viewer"
-                  series="[[series]]">
-      </ami-viewer>
+    <ami-loader files="[[files]]" series="{{series}}"></ami-loader>
+
+    <div class="container">
+
+      <!-- to load dirs, replace multiple by: webkitdirectory="" directory=""  -->
+      <input type="file" id="filesinput" on-change="localFS_load" multiple="">
+
+      <ami-viewer id="viewer" series="[[series]]"></ami-viewer>
 
     </div>
+
   </template>
   <script>
 
@@ -49,6 +54,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         properties: {
 
+          files: {
+            type: Array,
+            value: []
+          },
+
           series: {
             type: Array,
             value: []
@@ -57,78 +67,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         localFS_load: function( evt ){
-          window.console.log( 'YAY!' );
-          window.console.log( evt );
 
-          var self = this;
+            // convert files object to an array
+            var files = [];
+            for ( var i = 0; i < evt.target.files.length; i++ ) {
 
-          // VJS classes we will be using in this lesson
-          var LoadersVolume = AMI.default.Loaders.Volume;
+              files.push( evt.target.files[i] );
 
-          // element to contain the progress bar
-          var container = document.getElementById('container');
-          var loader = new LoadersVolume(container);
-          var seriesContainer = [];
+            }
 
-          // once all files have been loaded (fetch + parse + add to array)
-          // merge them into series / stacks / frames
-          function handleSeries() {
-            loader.free();
-            loader = null;
-
-            // merge files into clean series/stack/frame structure
-            self.series = seriesContainer[0].mergeSeries(seriesContainer);
-          };
-
-          // hide the upload button
-          if (evt.target.files.length) {
-            this.$.filesinput.style.display = 'none';
-          }
-
-          function loadSequence(index, files) {
-            return Promise.resolve()
-            // load the file
-              .then(function() {
-                return new Promise(function(resolve, reject) {
-                  var myReader = new FileReader();
-                  // should handle errors too...
-                  myReader.addEventListener('load', function(e) {
-                    resolve(e.target.result);
-                  });
-                  myReader.readAsArrayBuffer(files[index]);
-                });
-              })
-              .then(function(buffer) {
-                window.console.log(files[index]);
-                return loader.parse({url: files[index].name, buffer: buffer});
-              })
-              .then(function(series) {
-                seriesContainer.push(series);
-              })
-              .catch(function(error) {
-                window.console.log('oops... something went wrong...');
-                window.console.log(error);
-              });
-          }
-
-          var loadSequenceContainer = [];
-          for (var i = 0; i < evt.target.files.length; i++) {
-            loadSequenceContainer.push(
-              loadSequence(i, evt.target.files)
-            );
-          }
-
-          // run the load sequence
-          // load sequence for all files
-          Promise
-            .all(loadSequenceContainer)
-            .then(function() {
-              handleSeries(seriesContainer);
-            })
-            .catch(function(error) {
-              window.console.log('oops... something went wrong...');
-              window.console.log(error);
-            });
+            this.files =  files;
 
         }
 

@@ -30,11 +30,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
+    <ami-loader urls="[[urls]]" series="{{series}}"></ami-loader>
+
     <div class="container">
 
-    <ami-viewer id="viewer"
-                data="[[data]]">
-    </ami-viewer>
+      <ami-viewer id="viewer" series="[[series]]"> </ami-viewer>
 
     </div>
 
@@ -48,19 +48,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       properties: {
 
-          data: {
+          urls: {
+            type: Array,
+            value: []
+          },
+
+          series: {
             type: Array,
             value: []
           }
 
         },
 
-        ready: function( ){
+        ready: function(){
 
           // load the data...
           var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
-          this.data = t2.map(function(v) {
+          this.urls = t2.map( function( v ) {
+
             return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
+
           });
 
         }
