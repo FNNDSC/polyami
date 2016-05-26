@@ -120,20 +120,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-listbox>
         </paper-dropdown-menu>
         
-        <div>
-          Index
-          <paper-slider id="slider" min="0" max="{{indexMax}}" value="{{index}}" immediate-value="{{index}}" editable></paper-slider>
-        </div>
+        <div> Index </div>
+        <paper-slider id="slider" min="0" max="{{indexMax}}" value="{{index}}" immediate-value="{{index}}" editable></paper-slider>
         
-        <div>
-          Rotate
-          <paper-slider id="rotation" step="1" min="0" max="360" value="{{rotation}}" immediate-value="{{rotation}}" editable></paper-slider>
-        </div>
+        <div> Rotate </div>
+        <paper-slider id="rotation" step="1" min="0" max="360" value="{{rotation}}" immediate-value="{{rotation}}" editable></paper-slider>
         
         <div>
           Flip
-          <paper-checkbox checked="{{flipRows}}">Rows</paper-checkbox>
-          <paper-checkbox checked="{{flipColumns}}">Columns</paper-checkbox>
+          <paper-checkbox checked="{{flipRows}}">Horizontal</paper-checkbox>
+          <paper-checkbox checked="{{flipColumns}}">Vertical</paper-checkbox>
         </div>
         
       </div>
