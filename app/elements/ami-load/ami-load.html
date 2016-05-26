@@ -12,34 +12,131 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script type="text/javascript" src="https://cdn.rawgit.com/fnndsc/vjs/master/external/scripts/babel/polyfill.min.js"></script>
 
 
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+
+<link rel="import" href="../../bower_components/paper-swatch-picker/paper-swatch-picker.html">
+
 <dom-module id="ami-load">
   <template>
     <style>
 
       :host {
+
         display: block;
+
       }
 
       .container {
+
+        margin-top: 20px;
         display: flex;
+        flex-flow: row wrap;
+
+      }
+
+      @media ( max-width: 800px ) {
+
+        .container {
+
+          flex-flow: column wrap;
+
+        }
+
       }
 
       #viewer{
-        flex:1;
-        height: 300px;
+
+        flex:2;
+        height: 400px;
         min-width: 200px;
+        background-color: #212121;
+
+      }
+
+      .controls{
+
+        flex: 1;
+        min-width: 100px;
+        padding: 8px;
+
+      }
+
+      #filesinput {
+
+        display: none;
+
+      }
+
+      paper-dropdown-menu, paper-slider {
+
+        width:100%;
+
+      }
+
+      paper-button {
+
+        background-color: var(--paper-pink-a200);
+        color: #FFF;
+
       }
 
     </style>
 
     <ami-loader files="[[files]]" series="{{series}}"></ami-loader>
 
+    <paper-button raised on-tap="clickInput">Load data</paper-button>
+    <input type="file" id="filesinput" on-change="localFS_load" multiple="">
+
     <div class="container">
 
-      <!-- to load dirs, replace multiple by: webkitdirectory="" directory=""  -->
-      <input type="file" id="filesinput" on-change="localFS_load" multiple="">
+      <ami-viewer id="viewer"
+        series="[[series]]"
+        index="{{index}}"
+        orientation="{{orientation}}"
+        flip-rows="{{flipRows}}"
+        flip-columns="{{flipColumns}}"
+        index-max="{{indexMax}}"
+        border-color="[[borderColor]]"
+        angle="{{rotation}}"></ami-viewer>
 
-      <ami-viewer id="viewer" series="[[series]]"></ami-viewer>
+      <div class="controls">
+
+        <div>
+          Border Color
+          <paper-swatch-picker column-count=5 color="{{borderColor}}" color-list='["#65a5f2", "#83be54", "#f0d551", "#e5943c", "#a96ddb"]'></paper-swatch-picker>
+        </div>
+
+        
+        <paper-dropdown-menu label="Orientation">
+          <paper-listbox class="dropdown-content" selected="{{orientation}}">
+            <paper-item>Acquisition</paper-item>
+            <paper-item>Next</paper-item>
+            <paper-item>Last</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        
+        <div>
+          Index
+          <paper-slider id="slider" min="0" max="{{indexMax}}" value="{{index}}" immediate-value="{{index}}" editable></paper-slider>
+        </div>
+        
+        <div>
+          Rotate
+          <paper-slider id="rotation" step="1" min="0" max="360" value="{{rotation}}" immediate-value="{{rotation}}" editable></paper-slider>
+        </div>
+        
+        <div>
+          Flip
+          <paper-checkbox checked="{{flipRows}}">Rows</paper-checkbox>
+          <paper-checkbox checked="{{flipColumns}}">Columns</paper-checkbox>
+        </div>
+        
+      </div>
 
     </div>
 
@@ -62,7 +159,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           series: {
             type: Array,
             value: []
+          },
+
+          index: {
+            type: Number,
+            value: 0
+          },
+          
+          indexMax: {
+            type: Number,
+            value: 0
+          },
+          
+          orientation: {
+            type:Number,
+            value: 0
+          },
+          
+          rotation: {
+            type:Number,
+            value: 0
+          },
+          
+          flipRows: {
+            type: Boolean,
+            value: false
+          },
+          
+          flipColumns: {
+            type: Boolean,
+            value: false
+          },
+          
+          borderColor: {
+            type: String,
+            value: '#65a5f2',
+            observer: '_colorChanged'
           }
+
+        },
+
+        clickInput: function(){
+
+          this.$.filesinput.click();
 
         },
 
