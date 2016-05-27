@@ -189,16 +189,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           
           borderColor: {
             type: String,
-            value: '#65a5f2',
-            observer: '_colorChanged'
+            value: '#65a5f2'
           }
 
         },
 
-        clickInput: function(){
+        clickInput: function( evt ){
+
+          // if( !evt.isTrusted ){
 
           this.$.filesinput.click();
 
+          // }
+          
         },
 
         localFS_load: function( evt ){
